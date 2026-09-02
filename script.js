@@ -137,6 +137,9 @@
   var lightboxImg = document.getElementById('lightboxImg');
   var lightboxClose = document.getElementById('lightboxClose');
   var lastFocused = null;
+  /* Transparent 1x1 placeholder: avoids an empty src="" resolving to the page
+     URL, which makes the browser refetch the HTML document as an image. */
+  var BLANK_IMG = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
   function openLightbox(src, alt) {
     if (!lightbox || !lightboxImg) return;
@@ -151,7 +154,7 @@
   function closeLightbox() {
     if (!lightbox || lightbox.hidden) return;
     lightbox.hidden = true;
-    lightboxImg.src = '';
+    lightboxImg.src = BLANK_IMG;
     document.body.style.overflow = '';
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
