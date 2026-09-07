@@ -131,6 +131,40 @@
   });
 
   /* ---------------------------------------------------------------
+     Gallery marquee — duplicate the strip so it loops seamlessly.
+     Runs before the lightbox wiring below so clones stay clickable.
+     --------------------------------------------------------------- */
+  var track = document.getElementById('galleryTrack');
+
+  if (track && !reduceMotion) {
+    var originals = Array.prototype.slice.call(track.children);
+
+    originals.forEach(function (node) {
+      var clone = node.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      clone.setAttribute('tabindex', '-1');
+      track.appendChild(clone);
+    });
+
+    /* Keep the scroll speed constant (~70px/s) no matter how wide the
+       strip ends up at this viewport size. */
+    var setMarqueeSpeed = function () {
+      var half = track.scrollWidth / 2;
+      if (!half) return;
+      track.style.animationDuration = Math.max(20, Math.round(half / 70)) + 's';
+    };
+
+    setMarqueeSpeed();
+    window.addEventListener('load', setMarqueeSpeed);
+
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(setMarqueeSpeed, 200);
+    });
+  }
+
+  /* ---------------------------------------------------------------
      Gallery lightbox
      --------------------------------------------------------------- */
   var lightbox = document.getElementById('lightbox');
