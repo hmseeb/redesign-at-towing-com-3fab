@@ -165,6 +165,40 @@
   }
 
   /* ---------------------------------------------------------------
+     The marquee slides its photos through the viewport with a CSS
+     transform, and the browser's lazy-loader does not re-evaluate
+     transformed positions. Any shot that starts off to the right of
+     the fold therefore stays deferred forever and renders blank as it
+     scrolls past. Once the gallery is anywhere near the fold, promote
+     every shot in the strip to an eager load so the whole loop paints.
+     --------------------------------------------------------------- */
+  if (track) {
+    var loadAllShots = function () {
+      Array.prototype.slice.call(track.querySelectorAll('img')).forEach(function (img) {
+        if (img.loading !== 'eager') img.loading = 'eager';
+        /* Re-assigning src kicks a already-deferred load in browsers
+           that ignore a late `loading` change. */
+        if (!img.complete) img.src = img.src;
+      });
+      /* The strip's real width is only known once the photos have
+         decoded, so re-time the animation afterwards. */
+      if (typeof setMarqueeSpeed === 'function') setMarqueeSpeed();
+    };
+
+    if ('IntersectionObserver' in window) {
+      var shotObserver = new IntersectionObserver(function (entries, obs) {
+        if (entries.some(function (e) { return e.isIntersecting; })) {
+          obs.disconnect();
+          loadAllShots();
+        }
+      }, { rootMargin: '600px 0px' });
+      shotObserver.observe(track);
+    } else {
+      loadAllShots();
+    }
+  }
+
+  /* ---------------------------------------------------------------
      Gallery lightbox
      --------------------------------------------------------------- */
   var lightbox = document.getElementById('lightbox');
