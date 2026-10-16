@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://redesign-at-towing-com-3fab.vercel.app/sitemap.xml
